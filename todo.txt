@@ -1,0 +1,15 @@
+TODO:
+
+-- Use RabbitMQ instead of Beanstalkd.
+-- Setup 3 worker daemon
+-- Move thumbnail creation to worker queue.
+
+-- Integrate greenscreen processing.  Add flag to database.
+
+-- Ability to change values on admin page
+
+-- Track down printing delays.
+
+-- Reorganize photopops.py.  This will happen partially with moving things to worker queue.
+
+-- Retime TV display events

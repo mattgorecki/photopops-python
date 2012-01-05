@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Exec=/opt/google/chrome/google-chrome --kiosk --disable-connect-backup-jobs --media-cache-size=1 --disk-cache-size=1 http://127.0.0.1:8000/photopops/pop
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+Name[en_US]=Google Chrome
+Name=Google Chrome
+Comment[en_US]=Google Chrome on startup
+Comment=Google Chrome on startup

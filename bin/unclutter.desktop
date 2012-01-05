@@ -1,0 +1,11 @@
+
+[Desktop Entry]
+Type=Application
+Exec=/usr/bin/unclutter -idle 5
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+Name[en_US]=Uncluter
+Name=Uncluter
+Comment[en_US]=Hides mouse cursor
+Comment=Hides mouse cursor
