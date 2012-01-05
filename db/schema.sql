@@ -1,0 +1,1 @@
+CREATE TABLE "event" ("id" INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL , "title" VARCHAR NOT NULL , "shortname" VARCHAR NOT NULL , "number_up" INTEGER NOT NULL  DEFAULT 1, "send_to_printer" BOOL NOT NULL  DEFAULT False, "send_to_usbstick" BOOL NOT NULL  DEFAULT True, "upload_to_facebook" BOOL NOT NULL  DEFAULT True, "facebook_album_id" INTEGER, "facebook_album_url" VARCHAR);

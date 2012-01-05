@@ -1,7 +1,7 @@
-<html>
-<body>
+Hello {{name}}, {{title}}
 
-Hello {{name}}
+%for r in row:
+{{r}}
+%end
 
-</body>
-</html>
+%rebase base title=title

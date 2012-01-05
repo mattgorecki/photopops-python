@@ -1,7 +1,3 @@
-<html>
-<body>
-
 Hello {{name}}
 
-</body>
-</html>
+%rebase base title=title
