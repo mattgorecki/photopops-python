@@ -1,4 +1,3 @@
-import beanstalkc
 import facebook
 import Image
 import time
@@ -7,16 +6,7 @@ from pyQR import *
 import sys
 import subprocess
 
-#Connect to beanstalkd
-beanstalk = beanstalkc.Connection(host='localhost', port=11300)
-beanstalk.watch("pp")
-beanstalk.use('pp')
-beanstalk.ignore("default")
-
-# Connect to database via web2py DAL
-sys.path.append("/opt/web2py")
-from gluon import DAL
-db = DAL('sqlite://storage.sqlite', folder='/opt/web2py/applications/photopops/databases', auto_import=True)
+import pp_rabbitmq
 
 # Facebook Token setup
 FB_TOKEN='AAABs3ZCR0wIEBAJbl43Ebky3Y5iq0YPKGTpAEmk0yZBJTL4BfNLExBmSvZCEkYtavTlPKfZAYDZCP0GUC1ouLscGt999FRZBxILhBsOkemAgZDZD' # PhotoPops app token
