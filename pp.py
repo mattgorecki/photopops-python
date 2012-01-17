@@ -10,26 +10,37 @@ import pika
 import re
 import serial
 import shutil
-from socketio import SocketIO
+from lib.socketio import SocketIO
 import subprocess
 import sys
 import time
 
-# Initialization settings
-photo_list = list()
-
-# Connect to rabbitmq
-
+import pp_rabbitmq
+from etc import settings
 
 # Load config values from etc/photopops.cfg
+def loadconfig():
+	global cfg
+	cfgfile = open('etc/photopops.cfg')
+	cfg = json.load(cfgfile)
+	cfgfile.close()
+
+loadconfig()
+print cfg
 
 # Connect to Arduino
-s = serial.Serial('/dev/ttyACM0');
+#s = serial.Serial('/dev/ttyACM0');
+
+
+sys.exit()
 
 # Node.js connection
 sio = SocketIO()
 sio.send("log_event", "PhotoPops.py started")
 lastheartbeat = time.time()
+
+# Initialization settings
+photo_list = list()
 
 def download_photo():
 	''' Download photo from camera with gphoto2. Delete photo from camera immediately.  Return filename. '''
