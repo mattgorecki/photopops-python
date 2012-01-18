@@ -20,26 +20,32 @@ from etc import settings
 
 # Load config values from etc/photopops.cfg
 def loadconfig():
-	global cfg
+	global cfg, EVENTNAME, TMPDIR, EV_DIR, EV_ORIG_DIR, EV_PROC_DIR, USB_DIR, WATERMARK
+
 	cfgfile = open('etc/photopops.cfg')
 	cfg = json.load(cfgfile)
 	cfgfile.close()
 
+	EVENTNAME = cfg['shortname']
+	TMPDIR = "/tmp/photopops"
+	EV_DIR = "/opt/photopops/%s" % EVENTNAME
+	EV_ORIG_DIR = "/opt/photopops/%s/orig" % EVENTNAME
+	EV_PROC_DIR = "/opt/photopops/%s/proc" % EVENTNAME
+	EV_MARKED_DIR = "/opt/photopops/%s/marked" % EVENTNAME
+	USB_DIR = "/media/photopops"
+	WATERMARK = "/opt/photopops/assets/logo-angled-600x250.png"
+
 loadconfig()
-print cfg
 
 # Connect to Arduino
-#s = serial.Serial('/dev/ttyACM0');
-
-
-sys.exit()
+s = serial.Serial('/dev/ttyACM0');
 
 # Node.js connection
 sio = SocketIO()
 sio.send("log_event", "PhotoPops.py started")
 lastheartbeat = time.time()
 
-# Initialization settings
+# For storing the filenames of a multiple-shot set.
 photo_list = list()
 
 def download_photo():
@@ -128,34 +134,13 @@ while True:
 
 				# Load event settings on every new button press iteration, so any changes will take effect.
 				# Load JSON from etc/photopops.cfg
-				# loadcfg()
+				loadconfig()
 
-				''' All of this moves to loadcfg()
-				# Load configuration settings
-				EVENTNAME = event.shortname
-				TMPDIR = "/tmp/photopops"
-				EV_DIR = "/opt/photopops/%s" % EVENTNAME
-				EV_ORIG_DIR = "/opt/photopops/%s/original" % EVENTNAME
-				EV_PROC_DIR = "/opt/photopops/%s/processed" % EVENTNAME
-				USB_DIR = "/media/photopops"
-				WATERMARK = "/opt/photopops/assets/logo-angled-600x250.png"
-
-				# Make sure directories exist
-				if not os.path.isdir(TMPDIR):
-					os.mkdir(TMPDIR)
-				if not os.path.isdir(EV_DIR):
-					os.mkdir(EV_DIR)
-				if not os.path.isdir(EV_ORIG_DIR):
-					os.mkdir(EV_ORIG_DIR)
-				if not os.path.isdir(EV_PROC_DIR):
-					os.mkdir(EV_PROC_DIR)
-				'''
-
-				# TODO: Adjust delays in Arduino
-				# TODO: Move timer values to photopops.cfg or camera.cfg
 				# Notify TV display that button was pressed, via node.js
+				# This will start the countdown animation and wait for a few seconds
+				# before snapping the photo.
 				sio.send("button_pressed", "")
-				time.sleep(3.5)
+				time.sleep(settings.T_COUNTDOWN)
 
 				# Ready to take picture.  Send a "B" to trigger shutter
 				s.write("B")
@@ -165,16 +150,17 @@ while True:
 				print "Photo captured"
 
 				# Wait for camera to finish writing photo before downloading.
-				time.sleep(2)
+				time.sleep(settings.T_CAPTURE_DUR)
 
 				fn = download_photo()
 				if not fn:
 					# Camera didn't capture or errored out.  Send 'D' to reset Arduino and go to next iteration.
-					print "Camera error"
+					print "Camera error.  No file exists by %s" % fn
 					s.write("D")
 					continue
 
-				# Process Photo.  Resize, add logo, contrast and curves
+				# Initial resize of photo.  Rotate photo 90 degrees.
+				# This will display on the TV.
 				initial_resize_photo(fn, EVENTNAME)
 
 				# Copy original photo to USB stick
@@ -187,7 +173,7 @@ while True:
 
 				# Keep photo up on screen for a few seconds
 				# and ignore any button presses
-				time.sleep(5)
+				time.sleep(settings.T_TVPREVIEW)
 
 				# Only write D to re-enable the button if the whole cycle is complete. Otherwise, send B to do it again.
 				if len(photo_list) == event.number_up:
@@ -197,11 +183,10 @@ while True:
 					# QUEUE EVENT: send to printer
 					if event.send_to_printer:
 						print "Printing...",
-						beanstalk.put('{"cmd":"print","files":%s}' % json.dumps(photo_list))
+						#beanstalk.put('{"cmd":"print","files":%s}' % json.dumps(photo_list))
 						sio.send("log_event", "Sending to printer")
 						print "done."
 
-					# TODO: Build composite photo and send to printer
 					s.write("D")
 
 					# Clear photo_list
@@ -211,7 +196,7 @@ while True:
 
 					# Notify TV display that button was pressed, via node.js
 					sio.send("button_pressed", "")
-					time.sleep(3.5)
+					time.sleep(settings.T_COUNTDOWN)
 
 					# Ready to take picture.  Send a "B" to trigger shutter
 					s.write("B")
