@@ -33,7 +33,6 @@ def loadconfig():
 	EV_PROC_DIR = "/opt/photopops/%s/proc" % EVENTNAME
 	EV_MARKED_DIR = "/opt/photopops/%s/marked" % EVENTNAME
 	USB_DIR = "/media/photopops"
-	WATERMARK = "/opt/photopops/assets/logo-angled-600x250.png"
 
 loadconfig()
 
@@ -51,7 +50,6 @@ photo_list = list()
 def download_photo():
 	''' Download photo from camera with gphoto2. Delete photo from camera immediately.  Return filename. '''
 	print "Downloading photo...",
-	global TMPDIR
 
 	# Save file to tmp directory
 	os.chdir(TMPDIR)
@@ -83,13 +81,11 @@ def download_photo():
 	# Return filename of photo
 	return fn
 
-def initial_resize_photo(fn, eventname):
+def rotate_resize_for_tv(fn):
 	''' Initial photo process.  
 	Only save a single file that's 1080x1920 to display on TV.
 	Greenscreen processing will happen later.
 	'''
-	global EV_ORIG_DIR
-	global EV_PROC_DIR
 
 	# Move original photo to event directory
 	shutil.move("%s/%s" % (TMPDIR, fn), "%s/%s" % (EV_ORIG_DIR, fn))
@@ -101,19 +97,13 @@ def initial_resize_photo(fn, eventname):
 	im = im.rotate(90, expand=True)
 	im.save("%s/%s" % (EV_ORIG_DIR, fn), "JPEG", quality=90)
 
-	# Open photo and watermark
-	im = Image.open("%s/%s" % (EV_ORIG_DIR, fn))
-
-	# Save original image to Processed directory.
-	im.save("%s/%s" % (EV_PROC_DIR, fn), 'JPEG', quality=90)
-
 	# Generate 1080x1920 for TV display
 	thumb_tv = im.copy()
 	thumb_tv.thumbnail((1080,1920), Image.NEAREST)
-	thumb_tv.save("%s/1920-%s" % (EV_PROC_DIR, fn), 'JPEG', quality=90)
+	thumb_tv.save("%s/1920-%s" % (EV_ORIG_DIR, fn), 'JPEG', quality=90)
 
 	sio.send("log_event", "Photo processed")
-	sio.send("tv_photo_taken", "/opt/photopops/events/%s/original/1920-%s" % (eventname, fn))
+	sio.send("tv_photo_taken", "/opt/photopops/events/%s/original/1920-%s" % (EVENTNAME, fn))
 
 while True:
 	try:
@@ -161,10 +151,11 @@ while True:
 
 				# Initial resize of photo.  Rotate photo 90 degrees.
 				# This will display on the TV.
-				initial_resize_photo(fn, EVENTNAME)
+				rotate_resize_for_tv(fn)
 
 				# Copy original photo to USB stick
-				# QUEUE EVENT: send to usbstick
+				if cfg['send_to_usbstick']:
+					pp_rabbitmq.send("processing", '{"action":"send_to_usb","filname":"%s"}' % (fn))
 
 				# Photo complete. Set Arduino to ready
 				print "Photo %s complete." % fn
@@ -176,14 +167,14 @@ while True:
 				time.sleep(settings.T_TVPREVIEW)
 
 				# Only write D to re-enable the button if the whole cycle is complete. Otherwise, send B to do it again.
-				if len(photo_list) == event.number_up:
+				if len(photo_list) == cfg['number_up']:
 					print "Captured %s photos" % len(photo_list)
 					print photo_list
 
 					# QUEUE EVENT: send to printer
-					if event.send_to_printer:
+					if cfg['send_to_printer']:
 						print "Printing...",
-						#beanstalk.put('{"cmd":"print","files":%s}' % json.dumps(photo_list))
+						pp_rabbitmq.send("printing", '{"files":%s}' % json.dumps(photo_list))
 						sio.send("log_event", "Sending to printer")
 						print "done."
 
