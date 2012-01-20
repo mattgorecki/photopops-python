@@ -1,6 +1,8 @@
 '''
 settings.py - Photopops settings
 '''
+# Config File
+CFG_FILE = "/opt/photopops/etc/photopops.cfg"
 
 # Facebook API keys
 FB_APP_TOKEN="AAABs3ZCR0wIEBAJbl43Ebky3Y5iq0YPKGTpAEmk0yZBJTL4BfNLExBmSvZCEkYtavTlPKfZAYDZCP0GUC1ouLscGt999FRZBxILhBsOkemAgZDZD"

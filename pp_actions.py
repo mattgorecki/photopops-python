@@ -6,11 +6,6 @@ from pyQR import *
 import sys
 import subprocess
 
-import pp_rabbitmq
-
-# Facebook Token setup
-FB_TOKEN='AAABs3ZCR0wIEBAJbl43Ebky3Y5iq0YPKGTpAEmk0yZBJTL4BfNLExBmSvZCEkYtavTlPKfZAYDZCP0GUC1ouLscGt999FRZBxILhBsOkemAgZDZD' # PhotoPops app token
-FB_PAGE_ID='216861271706571' # PhotoPops Facebook Page
 graph = facebook.GraphAPI(FB_TOKEN)
 
 ### JOB FUNCTIONS

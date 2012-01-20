@@ -34,6 +34,9 @@ def loadconfig():
 	EV_MARKED_DIR = "/opt/photopops/%s/marked" % EVENTNAME
 	USB_DIR = "/media/photopops"
 
+def saveconfig():
+	print cfg
+
 loadconfig()
 
 # Connect to Arduino
