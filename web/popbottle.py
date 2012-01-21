@@ -1,5 +1,5 @@
 import sys
-sys.path.append("../lib")
+sys.path.append("/opt/photopops/lib")
 from bottle import route, run, static_file, template, view, install
 
 @route('/static/<filename:path>')
@@ -21,4 +21,4 @@ def admin(db):
 
 	return template('admin', values)
 
-run(host='localhost', port=8080, debug=True)
+run(host='0.0.0.0', port=8080, debug=True)

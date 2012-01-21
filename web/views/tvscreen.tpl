@@ -1,8 +1,21 @@
 %rebase base title=title
 
-<script src="http://:5000/socket.io/socket.io.js"></script>
+<style>
+	body {
+		background: url("/static/img/background-1920x1080.png");
+		padding: 0px;
+		margin: 0px;
+	}
+
+	#main {
+		margin: 0px;
+		padding:0px;
+	}
+</style>
+
+<script src="http://localhost:5000/socket.io/socket.io.js"></script>
 <script>
-var socket = io.connect('http://:5000');
+var socket = io.connect('http://localhost:5000');
   socket.on('message', function(data) {
     console.log(data);
   });
@@ -10,12 +23,12 @@ var socket = io.connect('http://:5000');
   socket.on('button_pressed', function(data) {
     console.log("easy button pressed");
     $('#main').css('background-color', 'transparent');
-	$('#main').html('<img src="/photopops/download/static/images/countdown-1910x1074.gif">');
+	$('#main').html('<img src="/static/img/vertical-countdown.gif">');
 
 	// Show rotator after countdown finishes
 	setTimeout(function() {
 	  $('#main').css('background-color', '#000000');
-	  $('#main').html('<img src="/photopops/download/static/images/rotator.gif">');
+	  $('#main').html('<img src="/static/img/vertical-rotator.gif">');
 	}, 6000);
 
 	// Reset Photo display timer if there is a button press before it's done.
@@ -35,9 +48,6 @@ var socket = io.connect('http://:5000');
     }, 7000);
   });
 
-$(document).bind('keyup', 'i', function() {
-	alert("ip address");
-});
 </script>
 
 <div id="main">&nbsp;</div>
