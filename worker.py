@@ -39,7 +39,8 @@ def greenscreen(cfg, fn, background='random'):
 	result.save("%s/%s" % (EV_PROC_DIR, fn))
 
 def build_1_up(cfg,photo_list):
-	print cfg,photo_list
+	print "Building final photo"
+	print photo_list
 	im = Image.new("RGB", (1200, 1800), "white")
 
 	# TODO: Make sure the file exists
@@ -56,7 +57,7 @@ def build_1_up(cfg,photo_list):
 
 	im.paste(thumb, (83,27))
 
-	qr = QRCode(5, QRErrorCorrectLevel.Q)
+	qr = QRCode(4, QRErrorCorrectLevel.L)
 	#TODO: Generate album URL for QR Code if it doesn't exist
 	print cfg['photopops_fb_album_url']
 	qr.addData("%s" % cfg['photopops_fb_album_url'])

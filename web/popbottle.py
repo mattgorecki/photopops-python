@@ -1,9 +1,13 @@
 import sys
+import time
 sys.path.append("/opt/photopops/lib")
-from bottle import route, run, static_file, template, view, install
+from bottle import route, run, static_file, template, view, install, response
 
 @route('/static/<filename:path>')
 def send_static(filename):
+	response.set_header('cache-control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0')
+	response.set_header('pragma', 'no-cache')
+	response.set_header('expires', time.strftime('%a, %d %b %Y %H:%M:%S GMT', time.gmtime()))
 	return static_file(filename, root='/opt/photopops/web')
 
 @route('/tv')
