@@ -10,5 +10,5 @@ def loadconfig():
 
 def saveconfig(cfg):
 	cfgfile = open(etc.settings.CFG_FILE, 'w')
-	json.dump(cfg, cfgfile)
+	json.dump(cfg, cfgfile, indent=4)
 	cfgfile.close()

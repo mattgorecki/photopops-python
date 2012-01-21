@@ -33,6 +33,7 @@ def loadconfig():
 	EV_ORIG_DIR = "/opt/photopops/events/%s/orig" % EVENTNAME
 	EV_PROC_DIR = "/opt/photopops/events/%s/proc" % EVENTNAME
 	EV_MARKED_DIR = "/opt/photopops/events/%s/marked" % EVENTNAME
+	EV_FINAL_DIR = "/opt/photopops/events/%s/final" % EVENTNAME
 	USB_DIR = "/media/photopops"
 
 	# Make sure directories exist
@@ -44,6 +45,8 @@ def loadconfig():
 		os.mkdir(EV_ORIG_DIR)
 	if not os.path.isdir(EV_MARKED_DIR):
 		os.mkdir(EV_MARKED_DIR)
+	if not os.path.isdir(EV_FINAL_DIR):
+		os.mkdir(EV_FINAL_DIR)
 	if not os.path.isdir(EV_PROC_DIR):
 		os.mkdir(EV_PROC_DIR)
 
@@ -107,16 +110,17 @@ def rotate_resize_for_tv(fn):
 
 	# Rotate photo
 	im = Image.open("%s/%s" % (EV_ORIG_DIR, fn))
-	im = im.rotate(90, expand=True)
+	im = im.rotate(-90, expand=True)
 	im.save("%s/%s" % (EV_ORIG_DIR, fn), "JPEG", quality=90)
 
 	# Generate 1080x1920 for TV display
 	thumb_tv = im.copy()
 	thumb_tv.thumbnail((1080,1920), Image.NEAREST)
-	thumb_tv.save("%s/1920-%s" % (EV_ORIG_DIR, fn), 'JPEG', quality=90)
+	thumb_tv = thumb_tv.rotate(90, expand=True)
+	thumb_tv.save("/opt/photopops/web/img/thumbs/1920-%s" % (fn), 'JPEG', quality=90)
 
 	sio.send("log_event", "Photo processed")
-	sio.send("tv_photo_taken", "/opt/photopops/events/%s/original/1920-%s" % (EVENTNAME, fn))
+	sio.send("tv_photo_taken", "1920-%s" % (fn))
 
 while True:
 	try:
@@ -166,13 +170,24 @@ while True:
 				# This will display on the TV.
 				rotate_resize_for_tv(fn)
 
+				# Green screen process
+				if cfg['greenscreen'] == "True":
+					#pp_rabbitmq.send('{"action":"greenscreen","filename":"%s"}' % fn)
+					shutil.copy("%s/%s" % (EV_ORIG_DIR, fn), "%s/%s" % (EV_PROC_DIR, fn))
+				else:
+					# Copy original to processed so we have something to work with later.
+					shutil.copy("%s/%s" % (EV_ORIG_DIR, fn), "%s/%s" % (EV_PROC_DIR, fn))
+
 				# Copy original photo to USB stick
-				if cfg['send_to_usbstick']:
-					pp_rabbitmq.send("processing", '{"action":"send_to_usb","filname":"%s"}' % (fn))
+				if cfg['send_to_usbstick'] == "True":
+					pp_rabbitmq.send('{"action":"send_to_usb","filename":"%s"}' % (fn))
+
+				# Upload to Facebook
+				if cfg['upload_to_photopops_fb'] == "True":
+					pp_rabbitmq.send('{"action":"fb_upload","filename":"%s"}' % (fn))
 
 				# Photo complete. Set Arduino to ready
-				print "Photo %s complete." % fn
-
+				print "Loop for photo %s complete." % fn
 				photo_list.append(fn)
 
 				# Keep photo up on screen for a few seconds
@@ -185,9 +200,13 @@ while True:
 					print photo_list
 
 					# QUEUE EVENT: send to printer
-					if cfg['send_to_printer']:
+					if cfg['send_to_printer'] == "True":
 						print "Printing...",
-						pp_rabbitmq.send("printing", '{"files":%s}' % json.dumps(photo_list))
+						#pp_rabbitmq.send("printing", '{"files":%s}' % json.dumps(photo_list))
+
+						if cfg['number_up'] == 1:
+							print "number up is 1"
+							pp_rabbitmq.send('{"action":"build_1_up", "files":%s, "send_to_printer":"%s"}' % (json.dumps(photo_list), cfg['send_to_printer']))
 						sio.send("log_event", "Sending to printer")
 						print "done."
 

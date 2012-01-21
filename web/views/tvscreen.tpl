@@ -2,7 +2,7 @@
 
 <style>
 	body {
-		background: url("/static/img/background-1920x1080.png");
+		background: url("/static/img/vertical-easybutton.jpg");
 		padding: 0px;
 		margin: 0px;
 	}
@@ -40,7 +40,7 @@ var socket = io.connect('http://localhost:5000');
   socket.on('tv_photo_taken', function(data) {
 	console.log(data);
 	$('#main').css('background-color', '#000000');
-	$('#main').html('<div align="center"><img src="'+ data +'"></div>');
+	$('#main').html('<div align="center"><img src="/static/img/thumbs/'+ data +'"></div>');
 
 	pptimer = setTimeout(function() {
       $('#main').html('');

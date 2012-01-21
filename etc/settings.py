@@ -10,5 +10,5 @@ FB_PHOTOPOPS_PAGE_ID="216861271706571"
 
 # Camera and Delay Timings for pp.py loop
 T_COUNTDOWN = 3.5
-T_CAPTURE_DUR = 2
+T_CAPTURE_DUR = 4
 T_TVPREVIEW = 5
