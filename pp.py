@@ -17,25 +17,35 @@ import time
 
 import pp_rabbitmq
 from etc import settings
+from pp_helpers import loadconfig,saveconfig
 
 # Load config values from etc/photopops.cfg
 def loadconfig():
 	global cfg, EVENTNAME, TMPDIR, EV_DIR, EV_ORIG_DIR, EV_PROC_DIR, USB_DIR, WATERMARK
 
-	cfgfile = open('etc/photopops.cfg')
+	cfgfile = open('/opt/photopops/etc/photopops.cfg')
 	cfg = json.load(cfgfile)
 	cfgfile.close()
 
 	EVENTNAME = cfg['shortname']
 	TMPDIR = "/tmp/photopops"
-	EV_DIR = "/opt/photopops/%s" % EVENTNAME
-	EV_ORIG_DIR = "/opt/photopops/%s/orig" % EVENTNAME
-	EV_PROC_DIR = "/opt/photopops/%s/proc" % EVENTNAME
-	EV_MARKED_DIR = "/opt/photopops/%s/marked" % EVENTNAME
+	EV_DIR = "/opt/photopops/events/%s" % EVENTNAME
+	EV_ORIG_DIR = "/opt/photopops/events/%s/orig" % EVENTNAME
+	EV_PROC_DIR = "/opt/photopops/events/%s/proc" % EVENTNAME
+	EV_MARKED_DIR = "/opt/photopops/events/%s/marked" % EVENTNAME
 	USB_DIR = "/media/photopops"
 
-def saveconfig():
-	print cfg
+	# Make sure directories exist
+	if not os.path.isdir(TMPDIR):
+		os.mkdir(TMPDIR)
+	if not os.path.isdir(EV_DIR):
+		os.mkdir(EV_DIR)
+	if not os.path.isdir(EV_ORIG_DIR):
+		os.mkdir(EV_ORIG_DIR)
+	if not os.path.isdir(EV_MARKED_DIR):
+		os.mkdir(EV_MARKED_DIR)
+	if not os.path.isdir(EV_PROC_DIR):
+		os.mkdir(EV_PROC_DIR)
 
 loadconfig()
 
