@@ -172,8 +172,7 @@ while True:
 
 				# Green screen process
 				if cfg['greenscreen'] == "True":
-					#pp_rabbitmq.send('{"action":"greenscreen","filename":"%s"}' % fn)
-					shutil.copy("%s/%s" % (EV_ORIG_DIR, fn), "%s/%s" % (EV_PROC_DIR, fn))
+					pp_rabbitmq.send('{"action":"greenscreen","filename":"%s"}' % fn)
 				else:
 					# Copy original to processed so we have something to work with later.
 					shutil.copy("%s/%s" % (EV_ORIG_DIR, fn), "%s/%s" % (EV_PROC_DIR, fn))

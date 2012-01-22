@@ -24,19 +24,9 @@ def print_photo(fn):
 
 def greenscreen(cfg, fn, background='random'):
 	# Greenscreen removal
-	EV_PROC_DIR = "/opt/photopops/events/%s/proc" % cfg['shortname']
-	EV_ORIG_DIR = "/opt/photopops/events/%s/orig" % cfg['shortname']
-
-	fullpath = "%s/%s" % (EV_ORIG_DIR, fn)
-
-	orig = Image(fullpath)
-	back = Image("/opt/photopops/assets/backgrounds/moon.jpg")
-	back = back.scale(2336,3505)
-
-	matte = orig.hueDistance(color=[0,220,0], minvalue = 40).binarize()
-	matte.show()
-	result = (orig-matte)+(back-matte.invert())
-	result.save("%s/%s" % (EV_PROC_DIR, fn))
+	print "Chroma Keying %s" % fn
+	p = subprocess.call(['/usr/bin/python', '/opt/photopops/greenscreen.py', fn, cfg['shortname']], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	print "Chroma Key done"
 
 def build_1_up(cfg,photo_list):
 	print "Building final photo"
@@ -123,8 +113,7 @@ def callback(ch, method, properties, body):
 	cfg = loadconfig()
 
 	if m['action'] == "greenscreen":
-		#greenscreen(cfg, m['filename'])
-		print "process green screen"
+		greenscreen(cfg, m['filename'])
 
 	if m['action'] == "build_1_up":
 		fn = build_1_up(cfg,m['files'])
