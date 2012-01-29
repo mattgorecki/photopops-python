@@ -1,5 +1,6 @@
 *.pyc
 *.swp
+etc/settings.py
 db/*.sqlite
 events/
 web/img/thumbs
